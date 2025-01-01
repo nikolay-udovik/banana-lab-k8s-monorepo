@@ -66,13 +66,6 @@ spec:
   generators:
     - list:
         elements:
-          - name: podinfo
-            repoURL: 'https://github.com/stefanprodan/podinfo.git'
-            path: kustomize
-            targetRevision: master
-            destinationServer: "https://kubernetes.default.svc"
-            destinationNamespace: demo
-
           - name: podinfo-token-validator
             repoURL: 'https://github.com/nikolay-udovik/bringg-podinfo-token-validator.git'
             path: kubernetes/overlays/local
