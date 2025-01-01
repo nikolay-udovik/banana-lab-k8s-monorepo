@@ -1,0 +1,6 @@
+version: '3'
+
+includes:
+  local:
+    taskfile: cluster/local/Taskfile.yaml
+    dir: cluster/local

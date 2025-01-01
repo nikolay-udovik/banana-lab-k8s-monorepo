@@ -1,0 +1,223 @@
+version: '3'
+
+vars:
+  KIND_CLUSTER_NAME: bringg-local
+  INGRESS_NGINX_VERSION: 4.12.0
+  ARGOCD_VERSION: 7.7.11
+  ARGOCD_ADMIN_PASS: Aa123456
+
+tasks:
+  kind-create:
+    desc: "Create a Kind cluster and install ingress controller"
+    status: ["none"]
+    cmds:
+      - |
+        #!/bin/bash -xe
+        CLUSTER_NAME="{{.KIND_CLUSTER_NAME}}"
+
+        # Check if the cluster already exists
+        if kind get clusters | grep -q "^${CLUSTER_NAME}$"; then
+            echo "Cluster '${CLUSTER_NAME}' already exists."
+        else
+            # Cluster doesn't exist, proceed with creation
+            cat <<EOF | kind create cluster --name=${CLUSTER_NAME} --config=-
+        kind: Cluster
+        apiVersion: kind.x-k8s.io/v1alpha4
+        nodes:
+        - role: control-plane
+          kubeadmConfigPatches:
+          - |
+            kind: InitConfiguration
+            nodeRegistration:
+              kubeletExtraArgs:
+                node-labels: "ingress-ready=true"
+          extraPortMappings:
+          - containerPort: 80
+            hostPort: 80
+            protocol: TCP
+          - containerPort: 443
+            hostPort: 443
+            protocol: TCP
+        EOF
+        fi
+
+  kind-delete:
+    desc: "Delete the Kind cluster"
+    status: ["none"]
+    cmds:
+      - kind delete cluster --name {{.KIND_CLUSTER_NAME}}
+      - sleep 5
+
+  ingress-nginx-install:
+    desc: "Install ingress-nginx on the cluster"
+    status: ["none"]
+    cmds:
+      - kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+
+  ingress-nginx-wait:
+    desc: "Wait for ingress-nginx to be available"
+    status: ["none"]
+    cmds:
+      - |
+        until [[ `kubectl get pod --namespace ingress-nginx --selector=app.kubernetes.io/component=controller -oname | wc -l` != 0 ]]; do
+          sleep 10
+          echo "Waiting for ingress to appear"
+        done
+      - |
+        kubectl wait --namespace ingress-nginx \
+        --for=condition=ready pod \
+        --selector=app.kubernetes.io/component=controller \
+        --timeout=90s
+
+  ingress-nginx:
+    desc: "Complete all steps to install ingress-nginx"
+    status: ["none"]
+    cmds:
+    - task: ingress-nginx-install
+    - task: ingress-nginx-wait
+
+  argocd-install:
+    desc: "Install argocd on the cluster"
+    status: ["none"]
+    cmds:
+    - helm repo add argo https://argoproj.github.io/argo-helm
+    - helm repo update
+    - |
+      helm upgrade -i argocd argo/argo-cd \
+        --version {{ .ARGOCD_VERSION }} \
+        -f ../../kubernetes/apps/infra/argocd/local/values.yaml \
+        --namespace argocd --create-namespace --wait
+  
+  argocd-wait:
+    desc: "Wait for 200OK from ArgoCD"
+    status: ["none"]
+    cmds:
+    - |
+      until [ "$(curl -o /dev/null -s -L -w "%{http_code}" http://localhost/argocd)" == "200" ]; do
+        echo "Waiting for 200 OK response from http://localhost/argocd ..."
+        sleep 10
+      done
+
+  argocd-init:
+    desc: "Init ArgoCD password"
+    status: 
+    - |
+        # Check if ArgoCD admin password is already updated
+        argocd login 'localhost:80' \
+          --username admin --password Aa123456 \
+          --insecure --plaintext \
+          --grpc-web-root-path=/argocd > /dev/null 2>&1
+    cmds: 
+    - | 
+      # Fetch the initial admin password from the ArgoCD secret
+      pass=$(kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
+      echo "Initial password: $pass"
+      
+      # Log in to ArgoCD available at localhost with /argocd prefix
+      argocd login 'localhost:80' \
+        --username admin --password $pass \
+        --insecure --plaintext \
+        --grpc-web-root-path=/argocd
+      
+      # Update the admin password
+      argocd account update-password \
+        --current-password $pass \
+        --new-password {{ .ARGOCD_ADMIN_PASS }}
+
+  argocd:
+    desc: "Complete all steps to install ArgoCD"
+    status: ["none"]
+    cmds:
+    - task: argocd-install
+    - task: argocd-wait
+    - task: argocd-init
+
+  argocd-login:
+    desc: "Login to ArgoCD"
+    status:
+    - |
+      # Check if already logged in
+      argocd account get-user-info > /dev/null 2>&1
+    cmds:
+    - |
+        argocd login localhost:80 \
+        --username admin --password {{ .ARGOCD_ADMIN_PASS }} \
+        --insecure --plaintext \
+        --grpc-web-root-path=/argocd 
+
+  argocd-apps-all-in-one:
+    desc: "Apply all apps"
+    status: ["none"]
+    cmds: 
+    - kubectl apply -k ../../kubernetes/argocd/local
+    - task: argocd-apps-all-in-one-wait
+
+  argocd-apps-all-in-one-wait:
+    status: ["none"]
+    cmds: 
+      - |
+        # Fetch the list of all ArgoCD applications
+        apps=$(argocd app list --output name)
+        
+        # Initialize the start time
+        start_time=$(date +%s)
+        max_time=300  # 5 minutes in seconds
+
+        # Wait until all applications are healthy and synced
+        while true; do
+          all_synced=true
+          all_healthy=true
+
+          for app in $apps; do
+            status=$(argocd app get $app --output json | jq -r '.status.sync.status')
+            health=$(argocd app get $app --output json | jq -r '.status.health.status')
+
+            # Check if the application is synced
+            if [ "$status" != "Synced" ]; then
+              echo "Application $app is not synced. Syncing now..."
+              argocd app sync $app
+              all_synced=false
+            fi
+
+            # Check if the application is healthy
+            if [ "$health" != "Healthy" ]; then
+              echo "Application $app is not healthy. Current status: $health"
+              all_healthy=false
+            fi
+          done
+
+          # Break the loop if all applications are synced and healthy
+          if [ "$all_synced" = true ] && [ "$all_healthy" = true ]; then
+            echo "All applications are synced and healthy."
+            break
+          fi
+
+          # Check if the timeout has been exceeded
+          current_time=$(date +%s)
+          elapsed_time=$((current_time - start_time))
+          if [ $elapsed_time -ge $max_time ]; then
+            echo "Timeout reached. Not all applications are synced and healthy."
+            exit 1
+          fi
+
+          echo "Waiting for applications to be synced and healthy... (Elapsed: ${elapsed_time}s)"
+          sleep 10
+        done
+    deps: 
+    - argocd-login
+  
+  cold-start:
+    desc: "Deploy all together!"
+    status: ["none"]
+    cmds:
+    - task: kind-create
+    - task: ingress-nginx
+    - task: argocd
+    - task: argocd-apps-all-in-one
+
+  recreate:
+    desc: "Remove all, and start again"
+    status: ["none"]
+    cmds:
+      - task: kind-delete
+      - task: cold-start

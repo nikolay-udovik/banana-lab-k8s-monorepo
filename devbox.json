@@ -1,0 +1,22 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.12.0/.schema/devbox.schema.json",
+  "packages": [
+    "kubectl@1.32.0",
+    "kubernetes-helm@3.16.4",
+    "kind@0.26.0",
+    "argocd@2.13.2",
+    "go-task@3.40.1",
+    "jq@latest"
+  ],
+  "shell": {
+    "init_hook": [
+      "export KUBECONFIG=~/.kube/bringg-local",
+      "alias k=kubectl",
+      "complete -F __start_kubectl k",
+      "alias ksetns='kubectl config set-context --current --namespace'",
+      "source <(kubectl completion zsh)",
+      "source <(helm completion zsh)",
+      "source <(argocd completion zsh)"
+    ]
+  }
+}
