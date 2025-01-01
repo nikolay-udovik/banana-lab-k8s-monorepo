@@ -72,6 +72,12 @@ spec:
             targetRevision: master
             destinationServer: "https://kubernetes.default.svc"
             destinationNamespace: demo
+          - name: podinfo-deps
+            repoURL: 'https://github.com/nikolay-udovik/bringg-k8s-monorepo.git'
+            path: kubernetes/apps/workloads/demo/podinfo-deps/local
+            targetRevision: master
+            destinationServer: "https://kubernetes.default.svc"
+            destinationNamespace: demo
   template:
     metadata:
       name: '{{name}}'

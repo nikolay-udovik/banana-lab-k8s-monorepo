@@ -1,0 +1,19 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: podinfo-backend-scaledobject
+  namespace: demo 
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: podinfo-backend  # Update this to your target deployment name
+  pollingInterval: 30  # Optional. Check every 30 seconds
+  cooldownPeriod: 300  # Optional. Wait for 5 minutes before scaling down
+  minReplicaCount: 2   # Ensure at least 2 pods are running
+  maxReplicaCount: 10  # Allow scaling up to 10 pods
+  triggers:
+    - type: cpu
+      metadata:
+        type: Utilization
+        value: "80"
