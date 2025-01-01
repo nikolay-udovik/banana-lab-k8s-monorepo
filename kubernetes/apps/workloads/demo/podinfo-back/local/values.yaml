@@ -1,0 +1,3 @@
+replicaCount: 2
+backend: http://backend-podinfo:9898/echo
+
