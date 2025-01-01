@@ -173,14 +173,6 @@ tasks:
             status=$(argocd app get $app --output json | jq -r '.status.sync.status')
             health=$(argocd app get $app --output json | jq -r '.status.health.status')
 
-            # Check if the application is in an unknown state
-            if [ "$status" = "Unknown" ]; then
-              echo "Application $app is in an Unknown state. Performing force sync..."
-              argocd app sync $app --force
-              all_synced=false
-              continue  # Skip further checks for this app after syncing
-            fi
-
             # Check if the application is synced
             if [ "$status" != "Synced" ]; then
               echo "Application $app is not synced. Current status: $status"

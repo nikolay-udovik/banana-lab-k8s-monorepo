@@ -75,39 +75,26 @@ spec:
 
 ---
 apiVersion: argoproj.io/v1alpha1
-kind: ApplicationSet
+kind: Application
 metadata:
-  name: infra-apps-non-helm
+  name: ingress-nginx
   namespace: argocd
+  labels:
+    environment: local
+    app-type: infra
 spec:
-  generators:
-    - list:
-        elements:
-          - name: ingress-nginx
-            repoURL: 'https://github.com/kubernetes/ingress-nginx.git'
-            path: deploy/static/provider/kind
-            targetRevision: HEAD
-            destinationServer: "https://kubernetes.default.svc"
-            destinationNamespace: ingress-nginx
-  template:
-    metadata:
-      name: '{{name}}'
-      labels:
-        environment: local
-        app-type: infra
-    spec:
-      project: default
-      source:
-        repoURL: '{{repoURL}}'
-        targetRevision: '{{targetRevision}}'
-        path: '{{path}}'
-      destination:
-        server: '{{destinationServer}}'
-        namespace: '{{destinationNamespace}}'
-      syncPolicy:
-        automated:
-          prune: true
-          selfHeal: true
-        syncOptions:
-          - CreateNamespace=true
-          - ServerSideApply=true
+  project: default
+  source:
+    repoURL: 'https://github.com/kubernetes/ingress-nginx.git'
+    targetRevision: HEAD
+    path: deploy/static/provider/kind
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: ingress-nginx
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - SkipSchemaValidation=true
