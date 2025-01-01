@@ -11,7 +11,7 @@ spec:
         elements:
           - name: podinfo-backend
             chartRepoURL: 'https://stefanprodan.github.io/podinfo'
-            chartName: frontend
+            chartName: podinfo
             chartVersion: 6.7.1
             valuesPath: kubernetes/apps/workloads/demo/podinfo-front/local/values.yaml
             valuesPathDir: kubernetes/apps/workloads/demo/podinfo-front/local
@@ -20,7 +20,7 @@ spec:
 
           - name: podinfo-frontend
             chartRepoURL: 'https://stefanprodan.github.io/podinfo'
-            chartName: backend
+            chartName: podinfo
             chartVersion: 6.7.1
             valuesPath: kubernetes/apps/workloads/demo/podinfo-back/local/values.yaml
             valuesPathDir: kubernetes/apps/workloads/demo/podinfo-back/local
