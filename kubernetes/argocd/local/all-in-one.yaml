@@ -86,13 +86,6 @@ spec:
             targetRevision: HEAD
             destinationServer: "https://kubernetes.default.svc"
             destinationNamespace: ingress-nginx
-
-          - name: kubelet-cert-approver
-            repoURL: 'https://github.com/alex1989hu/kubelet-serving-cert-approver.git'
-            path: deploy
-            targetRevision: HEAD
-            destinationServer: "https://kubernetes.default.svc"
-            destinationNamespace: kubelet-serving-cert-approver
   template:
     metadata:
       name: '{{name}}'
@@ -132,6 +125,7 @@ spec:
             targetRevision: master
             destinationServer: "https://kubernetes.default.svc"
             destinationNamespace: demo
+            
           - name: podinfo-token-validator
             repoURL: 'https://github.com/nikolay-udovik/bringg-podinfo-token-validator.git'
             path: kubernetes/overlays/local
