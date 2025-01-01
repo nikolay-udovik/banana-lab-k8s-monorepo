@@ -7,10 +7,10 @@ spec:
   generators:
     - list:
         elements:
-          - name: prometheus-stack
+          - name: argocd
             chartRepoURL: 'https://argoproj.github.io/argo-helm'
             chartName: argo-cd
-            chartVersion: 7.7.11
+            chartVersion: 7.2.1
             valuesPath: kubernetes/apps/infra/argocd/local/values.yaml
             valuesPathDir: kubernetes/apps/infra/argocd/local
             destinationServer: "https://kubernetes.default.svc"
@@ -73,16 +73,16 @@ spec:
   generators:
     - list:
         elements:
-          - name: all-in-one
-            repoURL: 'https://github.com/nikolay-udovik/bringg-k8s-monorepo.git'
-            path: kubernetes/argocd/local
-            targetRevision: master
-            destinationServer: "https://kubernetes.default.svc"
-            destinationNamespace: argocd
+          # - name: all-in-one
+          #   repoURL: 'https://github.com/nikolay-udovik/bringg-k8s-monorepo.git'
+          #   path: kubernetes/argocd/local
+          #   targetRevision: master
+          #   destinationServer: "https://kubernetes.default.svc"
+          #   destinationNamespace: argocd
 
           - name: ingress-nginx
             repoURL: 'https://github.com/kubernetes/ingress-nginx.git'
-            path: deploy/static/provider/kind/deploy.yaml
+            path: deploy/static/provider/kind
             targetRevision: HEAD
             destinationServer: "https://kubernetes.default.svc"
             destinationNamespace: ingress-nginx
