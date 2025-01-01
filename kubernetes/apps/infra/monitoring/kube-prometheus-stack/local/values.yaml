@@ -10,7 +10,7 @@ alertmanager:
 prometheus:
   externalUrl: http://localhost/prometheus
   ingress:
-    enabled: false
+    enabled: true
     ingressClassName: nginx
     pathType: Prefix
     annotations:
@@ -38,7 +38,7 @@ grafana:
       nginx.ingress.kubernetes.io/rewrite-target: /$2
       nginx.ingress.kubernetes.io/use-regex: "true"
     hosts:
-      - cpaths:
+      - paths:
           - path: /grafana(/|$)(.*)
             backend:
               serviceName: grafana
