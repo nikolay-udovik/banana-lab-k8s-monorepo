@@ -175,7 +175,7 @@ tasks:
             # Check if the application is synced
             if [ "$status" != "Synced" ]; then
               echo "Application $app is not synced. Syncing now..."
-              argocd app sync $app
+              argocd app sync $app --force
               all_synced=false
             fi
 
