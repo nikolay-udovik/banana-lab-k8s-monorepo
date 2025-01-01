@@ -34,6 +34,15 @@ spec:
             valuesPathDir: kubernetes/apps/infra/kube-system/metrics-server/local
             destinationServer: "https://kubernetes.default.svc"
             destinationNamespace: kube-system
+
+          - name: keda
+            chartRepoURL: 'https://kedacore.github.io/charts'
+            chartName: keda
+            chartVersion: 2.16.1
+            valuesPath: kubernetes/apps/infra/keda/local/values.yaml
+            valuesPathDir: kubernetes/apps/infra/keda/local
+            destinationServer: "https://kubernetes.default.svc"
+            destinationNamespace: keda
   template:
     metadata:
       name: '{{name}}'
