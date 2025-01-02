@@ -16,4 +16,4 @@ spec:
     - type: cpu
       metadata:
         type: Utilization
-        value: "80m"
+        value: "8"
