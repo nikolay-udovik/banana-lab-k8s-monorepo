@@ -222,10 +222,21 @@ tasks:
       - task: kind-delete
       - task: cold-start
 
-  podinfo-stress-test:
-    desc: "Start stress test"
-    status: ["none"]
-    cmds: 
+  podinfo-stress-test-start:
+    desc: "Run a heavy-load CPU stress test with POST requests"
+    cmds:
       - |
-        kubectl run load-tester --image=radial/busyboxplus:curl -it --rm -n demo --restart=Never -- \
-          sh -c "while true; do curl -s http://podinfo-backend; done"
+        echo "Starting high-volume POST stress test on app deployment at http://podinfo-backend:9898"
+      - |
+        kubectl run podinfo-stress-tester --image=alpine/curl -n demo --restart=Never -- \
+          sh -c "
+            while true; do
+              seq 1 1000 | xargs -P50 -I{} curl -s -X POST http://podinfo-backend:9898/echo -d \"stress payload\" >/dev/null;
+            done
+          "
+
+  podinfo-stress-test-stop:
+    desc: "Stopping stress test by deleting the podinfo-stress-tester pod"
+    cmds:
+      - |
+        kubectl delete pod podinfo-stress-tester -n demo || echo "Pod already deleted or does not exist."
