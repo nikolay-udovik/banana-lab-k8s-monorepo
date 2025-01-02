@@ -1,7 +1,5 @@
 # Overview
 
-## Kubernetes cluster to host all workloads
-
 ## My tools
 
 ### Kubernetes
