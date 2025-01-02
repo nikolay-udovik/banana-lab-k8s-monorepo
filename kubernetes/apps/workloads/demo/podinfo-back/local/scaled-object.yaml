@@ -6,10 +6,10 @@ metadata:
 spec:
   scaleTargetRef:
     name: podinfo-backend  # Update this to your target deployment name
-  pollingInterval: 5  # Optional. Check every 30 seconds
-  cooldownPeriod: 20  # Optional. Wait for 5 minutes before scaling down
-  minReplicaCount: 2   # Ensure at least 2 pods are running
-  maxReplicaCount: 10  # Allow scaling up to 10 pods
+  pollingInterval: 2
+  cooldownPeriod: 5
+  minReplicaCount: 2   
+  maxReplicaCount: 10  
   triggers:
     - type: cpu
       metricType: Utilization
