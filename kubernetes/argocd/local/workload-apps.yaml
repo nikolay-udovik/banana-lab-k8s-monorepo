@@ -4,6 +4,9 @@ kind: Application
 metadata:
   name: podinfo-backend
   namespace: argocd
+  labels:
+    environment: local
+    app-type: workloads
 spec:
   project: default
   sources:
@@ -34,6 +37,9 @@ kind: Application
 metadata:
   name: podinfo-front
   namespace: argocd
+  labels:
+    environment: local
+    app-type: workloads
 spec:
   project: default
   sources:
@@ -64,6 +70,9 @@ kind: Application
 metadata:
   name: podinfo-validator
   namespace: argocd
+  labels:
+    environment: local
+    app-type: workloads
 spec:
   project: default
   source:
