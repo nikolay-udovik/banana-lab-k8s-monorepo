@@ -1,102 +1,82 @@
-
 ---
 apiVersion: argoproj.io/v1alpha1
-kind: ApplicationSet
+kind: Application
 metadata:
-  name: workloads-apps-helm
+  name: podinfo-backend
   namespace: argocd
 spec:
-  generators:
-    - list:
-        elements:
-          - name: podinfo-backend
-            chartRepoURL: 'https://stefanprodan.github.io/podinfo'
-            chartName: podinfo
-            chartVersion: 6.7.1
-            valuesPath: kubernetes/apps/workloads/demo/podinfo-front/local/values.yaml
-            valuesPathDir: kubernetes/apps/workloads/demo/podinfo-front/local
-            destinationServer: "https://kubernetes.default.svc"
-            destinationNamespace: demo
-
-          - name: podinfo-frontend
-            chartRepoURL: 'https://stefanprodan.github.io/podinfo'
-            chartName: podinfo
-            chartVersion: 6.7.1
-            valuesPath: kubernetes/apps/workloads/demo/podinfo-back/local/values.yaml
-            valuesPathDir: kubernetes/apps/workloads/demo/podinfo-back/local
-            destinationServer: "https://kubernetes.default.svc"
-            destinationNamespace: demo
-  template:
-    metadata:
-      name: '{{name}}'
-      labels:
-        environment: local
-        app-type: application-layer
-    spec:
-      project: default
-      sources:
-        - repoURL: '{{chartRepoURL}}'
-          targetRevision: '{{chartVersion}}'
-          chart: '{{chartName}}'
-          helm:
-            valueFiles:
-              - '$values/{{valuesPath}}'
-        - repoURL: 'https://github.com/nikolay-udovik/bringg-k8s-monorepo.git'
-          targetRevision: master
-          path: '{{valuesPathDir}}'
-          ref: values
-      destination:
-        server: '{{destinationServer}}'
-        namespace: '{{destinationNamespace}}'
-      syncPolicy:
-        automated:
-          prune: true
-          selfHeal: true
-        syncOptions:
-          - CreateNamespace=true
-          - ServerSideApply=true
-
+  project: default
+  sources:
+  - repoURL: 'https://stefanprodan.github.io/podinfo'
+    targetRevision: '6.7.1'
+    chart: podinfo
+    helm:
+      valueFiles:
+        - $values/kubernetes/apps/workloads/demo/podinfo-back/local/values.yaml
+    path: kubernetes/apps/workloads/demo/podinfo-back/local
+  - repoURL: 'https://github.com/nikolay-udovik/bringg-k8s-monorepo.git'
+    targetRevision: master
+    path: kubernetes/apps/workloads/demo/podinfo-back/local
+    ref: values
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: demo
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
 ---
 apiVersion: argoproj.io/v1alpha1
-kind: ApplicationSet
+kind: Application
 metadata:
-  name: workloads-apps-non-helm
+  name: podinfo-front
   namespace: argocd
 spec:
-  generators:
-    - list:
-        elements:
-          - name: podinfo-token-validator
-            repoURL: 'https://github.com/nikolay-udovik/bringg-podinfo-token-validator.git'
-            path: kubernetes/overlays/local
-            targetRevision: master
-            destinationServer: "https://kubernetes.default.svc"
-            destinationNamespace: demo
-          - name: podinfo-deps
-            repoURL: 'https://github.com/nikolay-udovik/bringg-k8s-monorepo.git'
-            path: kubernetes/apps/workloads/demo/podinfo-deps/local
-            targetRevision: master
-            destinationServer: "https://kubernetes.default.svc"
-            destinationNamespace: demo
-  template:
-    metadata:
-      name: '{{name}}'
-      labels:
-        environment: local
-        app-type: application-layer
-    spec:
-      project: default
-      source:
-        repoURL: '{{repoURL}}'
-        targetRevision: '{{targetRevision}}'
-        path: '{{path}}'
-      destination:
-        server: '{{destinationServer}}'
-        namespace: '{{destinationNamespace}}'
-      syncPolicy:
-        automated:
-          prune: true
-          selfHeal: true
-        syncOptions:
-          - CreateNamespace=true
-          - ServerSideApply=true
+  project: default
+  sources:
+  - repoURL: 'https://stefanprodan.github.io/podinfo'
+    targetRevision: '6.7.1'
+    chart: podinfo
+    helm:
+      valueFiles:
+        - $values/kubernetes/apps/workloads/demo/podinfo-front/local/values.yaml
+    path: kubernetes/apps/workloads/demo/podinfo-front/local
+  - repoURL: 'https://github.com/nikolay-udovik/bringg-k8s-monorepo.git'
+    targetRevision: master
+    path: kubernetes/apps/workloads/demo/podinfo-front/local
+    ref: values
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: demo
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: podinfo-validator
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/nikolay-udovik/bringg-podinfo-token-validator.git'
+    targetRevision: master
+    path: kubernetes/overlays/local
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: demo
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

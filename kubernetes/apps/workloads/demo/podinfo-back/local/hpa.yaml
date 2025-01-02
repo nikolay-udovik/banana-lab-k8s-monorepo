@@ -1,7 +1,7 @@
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
-  name: podinfo-backend-scaledobject
+  name: podinfo-back-scaledobject
   namespace: demo 
 spec:
   scaleTargetRef:
