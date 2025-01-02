@@ -1,2 +1,13 @@
 replicaCount: null
 backend: http://podinfo-backend:9898/echo
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+  hosts:
+    - host: localhost
+      paths:
+        - path: /
+          pathType: Prefix
