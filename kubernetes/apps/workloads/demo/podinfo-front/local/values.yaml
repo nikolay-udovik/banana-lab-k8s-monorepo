@@ -1,2 +1,2 @@
-redis:
-  enabled: true
+replicaCount: null
+backend: http://podinfo-backend:9898/echo
