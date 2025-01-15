@@ -1,12 +1,12 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: bringg-k8s-local-all-in-one
+  name: banana-lab-local-k8s-all-in-one
   namespace: argocd
 spec:
   project: default
   source:
-    repoURL: 'https://github.com/nikolay-udovik/bringg-k8s-monorepo.git'
+    repoURL: 'https://github.com/nikolay-udovik/banana-lab-k8s-monorepo.git'
     path: kubernetes/argocd/local
     targetRevision: HEAD 
   destination:

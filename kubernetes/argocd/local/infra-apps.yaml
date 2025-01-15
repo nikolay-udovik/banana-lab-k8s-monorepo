@@ -58,7 +58,7 @@ spec:
           helm:
             valueFiles:
               - '$values/{{valuesPath}}'
-        - repoURL: 'https://github.com/nikolay-udovik/bringg-k8s-monorepo.git'
+        - repoURL: 'https://github.com/nikolay-udovik/banana-lab-k8s-monorepo.git'
           targetRevision: master
           path: '{{valuesPathDir}}'
           ref: values

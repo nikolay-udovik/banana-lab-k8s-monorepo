@@ -1,7 +1,7 @@
 version: '3'
 
 vars:
-  KIND_CLUSTER_NAME: bringg-local
+  KIND_CLUSTER_NAME: banana-lab-local
   INGRESS_NGINX_VERSION: 4.12.0
   ARGOCD_VERSION: 7.2.1
   ARGOCD_ADMIN_PASS: Aa123456

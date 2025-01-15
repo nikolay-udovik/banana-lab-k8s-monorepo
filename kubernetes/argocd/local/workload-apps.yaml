@@ -17,7 +17,7 @@ spec:
       valueFiles:
         - $values/kubernetes/apps/workloads/demo/podinfo-back/local/values.yaml
     path: kubernetes/apps/workloads/demo/podinfo-back/local
-  - repoURL: 'https://github.com/nikolay-udovik/bringg-k8s-monorepo.git'
+  - repoURL: 'https://github.com/nikolay-udovik/banana-lab-k8s-monorepo.git'
     targetRevision: master
     path: kubernetes/apps/workloads/demo/podinfo-back/local
     ref: values
@@ -50,7 +50,7 @@ spec:
       valueFiles:
         - $values/kubernetes/apps/workloads/demo/podinfo-front/local/values.yaml
     path: kubernetes/apps/workloads/demo/podinfo-front/local
-  - repoURL: 'https://github.com/nikolay-udovik/bringg-k8s-monorepo.git'
+  - repoURL: 'https://github.com/nikolay-udovik/banana-lab-k8s-monorepo.git'
     targetRevision: master
     path: kubernetes/apps/workloads/demo/podinfo-front/local
     ref: values
@@ -76,7 +76,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://github.com/nikolay-udovik/bringg-podinfo-token-validator.git'
+    repoURL: 'https://github.com/nikolay-udovik/banana-lab-podinfo-token-validator.git'
     targetRevision: master
     path: kubernetes/overlays/local
   destination:

@@ -10,7 +10,7 @@
   ],
   "shell": {
     "init_hook": [
-      "export KUBECONFIG=~/.kube/bringg-local",
+      "export KUBECONFIG=~/.kube/banana-lab-local",
       "alias k=kubectl",
       "complete -F __start_kubectl k",
       "alias ksetns='kubectl config set-context --current --namespace'",
